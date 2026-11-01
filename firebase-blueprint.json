@@ -1,0 +1,77 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Devashtra authenticated user profile and educational progress",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "format": "email", "maxLength": 150 },
+        "role": { "type": "string", "enum": ["student", "parent", "mentor", "admin"] },
+        "xp": { "type": "number" },
+        "level": { "type": "number" },
+        "badges": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "role"]
+    },
+    "Waitlist": {
+      "title": "Waitlist",
+      "description": "Early access cohort waitlist submission",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "format": "email", "maxLength": 150 },
+        "role": { "type": "string", "maxLength": 50 },
+        "interestTrack": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fullName", "email"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Student coding project saved in Cloud Lab",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 120 },
+        "code": { "type": "string", "maxLength": 50000 },
+        "language": { "type": "string", "enum": ["python", "javascript"] },
+        "authorId": { "type": "string", "maxLength": 128 },
+        "authorName": { "type": "string", "maxLength": 100 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "code", "language", "authorId"]
+    },
+    "GameScore": {
+      "title": "GameScore",
+      "description": "3D Cyber Rover game high scores and mission completions",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "playerName": { "type": "string", "maxLength": 100 },
+        "score": { "type": "number" },
+        "levelReached": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["playerName", "score"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles indexed by Firebase Auth UID"
+    },
+    "/waitlist/{waitlistId}": {
+      "schema": "Waitlist",
+      "description": "Platform waitlist registrations"
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Cloud lab user code projects"
+    },
+    "/gameScores/{scoreId}": {
+      "schema": "GameScore",
+      "description": "Leaderboard scores for 3D Cyber Rover"
+    }
+  }
+}

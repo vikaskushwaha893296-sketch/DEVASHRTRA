@@ -1,0 +1,6 @@
+{
+  "name": "Devashtra",
+  "description": "Browser-based AI-powered tech learning platform bridging the gap between passive learning and real-world tech execution.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'admin@devashtra.com' ||
+        request.auth.token.email == 'vikaskushwaha893296@gmail.com'
+      );
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) &&
+        request.resource.data.name is string && request.resource.data.name.size() <= 100 &&
+        request.resource.data.email is string && request.resource.data.email.size() <= 150;
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Waitlist Collection
+    match /waitlist/{waitlistId} {
+      allow read: if isAdmin();
+      allow create: if request.resource.data.email is string &&
+        request.resource.data.email.size() <= 150 &&
+        request.resource.data.fullName is string &&
+        request.resource.data.fullName.size() <= 100;
+      allow update, delete: if isAdmin();
+    }
+
+    // Projects Collection (Cloud Lab)
+    match /projects/{projectId} {
+      allow get: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() &&
+        request.resource.data.authorId == request.auth.uid &&
+        request.resource.data.title is string && request.resource.data.title.size() <= 120 &&
+        request.resource.data.code is string && request.resource.data.code.size() <= 50000;
+      allow update: if isSignedIn() && resource.data.authorId == request.auth.uid;
+      allow delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
+    }
+
+    // 3D Game Scores Collection
+    match /gameScores/{scoreId} {
+      allow read: if true;
+      allow create: if request.resource.data.score is number &&
+        request.resource.data.playerName is string &&
+        request.resource.data.playerName.size() <= 100;
+      allow update, delete: if isAdmin();
+    }
+  }
+}
